@@ -4,11 +4,11 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/rs/rest-layer/resource/testing/mem"
 	"github.com/rs/rest-layer/resource"
+	"github.com/rs/rest-layer/resource/testing/mem"
 	"github.com/rs/rest-layer/rest"
-	"github.com/rs/rest-layer/schema/query"
 	"github.com/rs/rest-layer/schema"
+	"github.com/rs/rest-layer/schema/query"
 )
 
 var (
