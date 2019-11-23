@@ -4,19 +4,19 @@ settings:
     interval: 0s
 schema:
 - name: api
-  path: ./cmd/api
+  path: .
   commands:
     install:
       status: true
-      method: go build -o app
+      method: go build -o bin/api ./cmd/api
     run:
       status: true
-      method: ./cmd/api/app/api
+      method: ./bin/api
   watcher:
     extensions:
     - go
     paths:
-    - ../../
+    - .
     ignored_paths:
     - .git
     - .realize

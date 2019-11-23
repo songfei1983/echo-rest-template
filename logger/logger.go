@@ -3,16 +3,15 @@ package logger
 import (
 	"fmt"
 	"path"
-	"regexp"
 	"runtime"
 	"strconv"
-	"time"
 	"sync"
+	"time"
 
-	"github.com/labstack/echo/v4/middleware"
-	"go.uber.org/zap/zapcore"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 var global *zap.Logger

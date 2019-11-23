@@ -4,3 +4,6 @@
 
 #DB
 *.db
+
+#EXEC
+bin/
