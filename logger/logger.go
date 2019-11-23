@@ -105,6 +105,22 @@ func loggerFields(c echo.Context) []zapcore.Field{
 	return fields
 }
 
+func Debug(c echo.Context, format string, args ...interface{}) {
+	global.Debug(fmt.Sprintf(format, args...), loggerFields(c)...)
+}
+
 func Info(c echo.Context, format string, args ...interface{}) {
 	global.Info(fmt.Sprintf(format, args...), loggerFields(c)...)
+}
+
+func Warn(c echo.Context, format string, args ...interface{}) {
+	global.Warn(fmt.Sprintf(format, args...), loggerFields(c)...)
+}
+
+func Error(c echo.Context, format string, args ...interface{}) {
+	global.Error(fmt.Sprintf(format, args...), loggerFields(c)...)
+}
+
+func Fatal(c echo.Context, format string, args ...interface{}) {
+	global.Fatal(fmt.Sprintf(format, args...), loggerFields(c)...)
 }
