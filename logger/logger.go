@@ -109,39 +109,3 @@ func loggerFields(c echo.Context) []zapcore.Field{
 func Info(c echo.Context, format string, args ...interface{}) {
 	global.Info(fmt.Sprintf(format, args...), loggerFields(c)...)
 }
-
-var (
-	re = regexp.MustCompile(`^(\S.+)\.(\S.+)$`)
-)
-
-type CallerInfo struct {
-	PackageName  string
-	FunctionName string
-	FileName     string
-	FileLine     int
-}
-
-func Dump() (callerInfo []*CallerInfo) {
-	for i := 1; ; i++ {
-		pc, _, _, ok := runtime.Caller(i) // https://golang.org/pkg/runtime/#Caller
-		if !ok {
-			break
-		}
-
-		fn := runtime.FuncForPC(pc)
-		fileName, fileLine := fn.FileLine(pc)
-
-		_fn := re.FindStringSubmatch(fn.Name())
-		callerInfo = append(callerInfo, &CallerInfo{
-			PackageName:  _fn[1],
-			FunctionName: _fn[2],
-			FileName:     fileName,
-			FileLine:     fileLine,
-		})
-	}
-	for i := len(callerInfo) - 1; i > -1; i-- {
-		v := callerInfo[i]
-		fmt.Printf("%02d: %s.%s@%s:%d\n", i, v.PackageName, v.FunctionName, v.FileName, v.FileLine)
-	}
-	return
-}
