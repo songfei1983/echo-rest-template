@@ -1,6 +1,7 @@
-package api
+package app
 
 import (
+	"github.com/songfei1983/go-api-server/helper"
 	"net/http"
 
 	"github.com/jinzhu/gorm"
@@ -8,7 +9,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
-	"github.com/songfei1983/go-api-server/internal/infra"
+	"github.com/songfei1983/go-api-server/db"
 	"github.com/songfei1983/go-api-server/logger"
 	gormzap "github.com/wantedly/gorm-zap"
 )
@@ -17,6 +18,7 @@ type APP struct {
 	Config Config
 	DB     *gorm.DB
 	Server *echo.Echo
+	Authorized *echo.Group
 }
 
 func New() *APP {
@@ -43,7 +45,7 @@ func (app *APP) db() *gorm.DB {
 }
 
 func (app *APP) Migrate() {
-	infra.Migrate(app.DB)
+	db.Migrate(app.DB)
 }
 
 func (app *APP) server() *echo.Echo {
@@ -51,7 +53,9 @@ func (app *APP) server() *echo.Echo {
 	e.Use(middleware.RequestID())
 	e.Use(logger.ZapLogger())
 	e.Use(middleware.CORS())
+	e.Use(middleware.JWTWithConfig(helper.DefaultJWTConfig))
 	// e.Use(middleware.Recover())
+	app.Authorized = e.Group("/api", helper.AuthenticationMiddleware)
 
 	e.Logger.SetLevel(log.DEBUG)
 

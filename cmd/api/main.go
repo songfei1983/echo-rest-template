@@ -1,24 +1,28 @@
 package main
 
 import (
+	"github.com/songfei1983/go-api-server/internal/login"
 	"log"
 
-	api "github.com/songfei1983/go-api-server/cmd/api/app"
-	"github.com/songfei1983/go-api-server/internal/user/handler/rest"
+	"github.com/songfei1983/go-api-server/cmd/api/app"
+	"github.com/songfei1983/go-api-server/internal/user"
 )
 
 func main() {
-	app := api.New()
-	defer app.Close()
-	app.Migrate()
-	handler(app)
-	app.Start()
+	api := app.New()
+	defer api.Close()
+	api.Migrate()
+	handler(api)
+	api.Start()
 }
 
-func handler(app *api.APP) {
-	type Controller func(app *api.APP) error
-	for _, handler := range []Controller{rest.NewUserController} {
-		if err := handler(app); err != nil {
+func handler(api *app.APP) {
+	type Controller func(api *app.APP) error
+	for _, handler := range []Controller{
+		user.NewController,
+		login.NewController,
+	} {
+		if err := handler(api); err != nil {
 			log.Fatal(err)
 		}
 	}
