@@ -3,26 +3,43 @@ package user
 import (
 	"context"
 	"github.com/jinzhu/gorm"
-	"github.com/labstack/echo/v4"
-	api "github.com/songfei1983/go-api-server/cmd/api/app"
+	"github.com/songfei1983/go-api-server/cmd/api/app"
+	"github.com/songfei1983/go-api-server/helper"
 	"github.com/songfei1983/go-api-server/internal/entity"
 	"github.com/songfei1983/go-api-server/internal/model"
 )
 
 type Repository interface {
 	GetAll(ctx context.Context) ([]*model.User, error)
-	CreateUser(ctx context.Context) error
+	CreateUser(ctx helper.CustomContext, m *model.CreateUser) error
+	GetByID(id int) (*model.User, error)
+	GetByEmail(email string) (*model.User, error)
+}
+
+func NewUserPersistence(api *app.APP) Repository {
+	return &userPersistence{api.DB}
 }
 
 type userPersistence struct {
 	db *gorm.DB
 }
 
-func NewUserPersistence(app *api.APP) Repository {
-	return &userPersistence{app.DB}
+func (u *userPersistence) GetByID(id int) (*model.User, error) {
+	panic("implement me")
 }
 
-func (u userPersistence) GetAll(ctx context.Context) ([]*model.User, error) {
+func (u *userPersistence) GetByEmail(email string) (*model.User, error) {
+	e := &entity.User{}
+	if err := u.db.Where("email = ?", email).First(e).Error; err != nil {
+		return nil, err
+	}
+	// recovery for verify password
+	m := toUserModel(e)
+	m.Password = model.Password(e.Password)
+	return m, nil
+}
+
+func (u *userPersistence) GetAll(ctx context.Context) ([]*model.User, error) {
 	entities := make([]*entity.User, 0)
 	err := u.db.Find(&entities).Error
 	models := make([]*model.User, len(entities))
@@ -32,10 +49,8 @@ func (u userPersistence) GetAll(ctx context.Context) ([]*model.User, error) {
 	return models, err
 }
 
-func (u userPersistence) CreateUser(ctx context.Context) error {
-	c := ctx.Value("ctx").(echo.Context)
-	m := c.Get("data").(model.User)
-	return u.db.Save(fromUserModel(&m)).Error
+func (u *userPersistence) CreateUser(ctx helper.CustomContext, m *model.CreateUser) error {
+	return u.db.Save(fromUserModel(m)).Error
 }
 
 func toUserModel(e *entity.User) *model.User {
@@ -47,13 +62,15 @@ func toUserModel(e *entity.User) *model.User {
 	u.Password = u.Password.Mask()
 	return u
 }
-func fromUserModel(m *model.User) *entity.User {
+func fromUserModel(i interface{}) *entity.User {
 	e := new(entity.User)
-	e.ID = m.ID
-	e.Name = m.Name
-	e.Email = m.Email
-	e.Password = m.Password.HashAndSalt()
-	e.IsEnabled = m.IsEnabled
-	e.Role = m.Role
+	switch m := i.(type) {
+	case *model.CreateUser:
+		e.Name = m.Name
+		e.Email = m.Email
+		e.Password = m.Password.HashAndSalt()
+		e.IsEnabled = true
+		e.Role = m.Role
+	}
 	return e
 }

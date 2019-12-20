@@ -9,10 +9,11 @@ import (
 
 type UseCase interface {
 	GetAll(ctx context.Context) ([]*model.User, error)
-	Create(ctx context.Context) error
+	Create(ctx helper.CustomContext, m *model.CreateUser) error
 	Update(ctx context.Context) error
 	Delete(ctx context.Context) error
 	GetByID(ctx context.Context) (*model.User, error)
+	GetByEmail(ctx helper.CustomContext, email string) (*model.User, error)
 }
 
 func NewUseCase(r Repository) UseCase {
@@ -25,8 +26,8 @@ type useCase struct {
 	userRepository Repository
 }
 
-func (u *useCase) Create(ctx context.Context) error {
-	if err := u.userRepository.CreateUser(ctx); err != nil {
+func (u *useCase) Create(ctx helper.CustomContext, m *model.CreateUser) error {
+	if err := u.userRepository.CreateUser(ctx, m); err != nil {
 		return err
 	}
 	return nil
@@ -53,3 +54,8 @@ func (u *useCase) GetAll(ctx context.Context) ([]*model.User, error) {
 	}
 	return res, nil
 }
+
+func (u *useCase) GetByEmail(cc helper.CustomContext, email string) (*model.User, error) {
+	return u.userRepository.GetByEmail(email)
+}
+

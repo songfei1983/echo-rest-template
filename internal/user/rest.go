@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"github.com/songfei1983/go-api-server/helper"
 	"github.com/songfei1983/go-api-server/internal/model"
 	"github.com/songfei1983/go-api-server/logger"
 	"net/http"
@@ -86,17 +87,16 @@ func (u handler) Create(c echo.Context) error {
 		return err
 	}
 
-	m := new(model.User)
+	m := new(model.CreateUser)
 	m.Name = req.Name
 	m.Email = req.Email
 	m.Role = req.Role
-	m.IsEnabled = true
 	m.Password = model.Password(req.Password)
 
 	logger.Info(c, "create user")
 	c.Set("data", *m)
-	ctx := context.WithValue(context.Background(), "ctx", c)
-	if err := u.userUserCase.Create(ctx); err != nil {
+	ctx := helper.CustomContext{Context:c}
+	if err := u.userUserCase.Create(ctx, m); err != nil {
 		c.Logger().Error(err)
 		return c.NoContent(http.StatusBadRequest)
 	}

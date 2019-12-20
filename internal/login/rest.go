@@ -6,6 +6,7 @@ import (
 	"github.com/songfei1983/go-api-server/cmd/api/app"
 	"github.com/songfei1983/go-api-server/helper"
 	"github.com/songfei1983/go-api-server/internal/model"
+	"github.com/songfei1983/go-api-server/internal/user"
 	"net/http"
 )
 
@@ -17,31 +18,32 @@ type Handler interface {
 
 type handler struct {
 	LoginUseCase UseCase
+	UserUseCase  user.UseCase
 }
 
 func (h handler) Login(c echo.Context) error {
-	data := &model.DataLoginRequest{}
+	data := &model.LoginUser{}
 	if err := c.Bind(data); err != nil {
 		return err
 	}
 	if err := validator.New().Struct(data); err != nil {
 		return err
 	}
-	u := model.User{
-		ID:        0,
-		Name:      data.Username,
-		Role:      "admin",
-		Email:     data.Username,
-		Password:  model.Password(data.Password),
-		IsEnabled: true,
-	}
-	t, err := helper.GenToken(u)
+	cc := helper.CustomContext{Context: c,}
+	u, err := h.UserUseCase.GetByEmail(cc, data.Email)
 	if err != nil {
 		return err
 	}
-	return c.JSON(http.StatusOK, map[string]string{
-		"token": t,
-	})
+	if u.Password.Verify(data.Password) {
+		t, err := helper.GenToken(*u)
+		if err != nil {
+			return err
+		}
+		return c.JSON(http.StatusOK, map[string]string{
+			"token": t,
+		})
+	}
+	return c.NoContent(http.StatusUnauthorized)
 }
 
 func (h handler) Logout(c echo.Context) error {
@@ -49,14 +51,27 @@ func (h handler) Logout(c echo.Context) error {
 }
 
 func (h handler) Register(c echo.Context) error {
-	panic("implement me")
+	data := &model.CreateUser{}
+	if err := c.Bind(data); err != nil {
+		return err
+	}
+	if err := validator.New().Struct(data); err != nil {
+		return err
+	}
+	cc := helper.CustomContext{Context: c,}
+	if err := h.UserUseCase.Create(cc, data); err != nil {
+		return err
+	}
+	return c.NoContent(http.StatusCreated)
 }
 
 func NewController(api *app.APP) error {
 	api.Server.Logger.Info("Created login controller")
 
+	userRepo := user.NewUserPersistence(api)
+	userUseCase := user.NewUseCase(userRepo)
 	loginUseCase := NewUseCase()
-	h := NewHandler(loginUseCase)
+	h := NewHandler(loginUseCase, userUseCase)
 
 	api.Server.POST("/login", h.Login)
 	api.Server.GET("/logout", h.Login)
@@ -64,8 +79,9 @@ func NewController(api *app.APP) error {
 	return nil
 }
 
-func NewHandler(login UseCase) Handler {
+func NewHandler(l UseCase, u user.UseCase) Handler {
 	return &handler{
-		LoginUseCase: login,
+		LoginUseCase: l,
+		UserUseCase:u,
 	}
 }

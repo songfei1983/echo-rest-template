@@ -1,6 +1,6 @@
 package model
 
-type DataLoginRequest struct {
-	Username string `json:"username" validate:"required,email"`
-	Password string `json:"password" validate:"required,min=8"`
+type LoginUser struct {
+	Email    string   `json:"email"`
+	Password Password `json:"password"`
 }

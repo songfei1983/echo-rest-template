@@ -1,22 +1,33 @@
 package model
 
-import "golang.org/x/crypto/bcrypt"
+import (
+	"fmt"
+	"golang.org/x/crypto/bcrypt"
+)
+
+// Data
+type UserModel struct {
+	Name  string `json:"name"`
+	Role  string `json:"role"`
+	Email string `json:"email"`
+}
 
 // Response
 type User struct {
 	ID        uint     `json:"id"`
-	Name      string   `json:"name"`
-	Role      string   `json:"role"`
-	Email     string   `json:"email"`
 	Password  Password `json:"password"`
 	IsEnabled bool     `json:"is_enabled"`
+	UserModel
 }
 
 // Value
 type Password string
 
+func (p Password) String() string {
+	return string(p)
+}
 func (p Password) HashAndSalt() string {
-	hash, _ := bcrypt.GenerateFromPassword([]byte(p), bcrypt.MinCost)
+	hash, _ := bcrypt.GenerateFromPassword([]byte(p), bcrypt.DefaultCost)
 	return string(hash)
 }
 
@@ -24,34 +35,26 @@ func (p Password) Mask() Password {
 	return "******"
 }
 
-func (p Password) Verify(plainPwd string) bool {
+func (p Password) Verify(plainPwd Password) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(p), []byte(plainPwd))
+	fmt.Println(err)
 	return err == nil
 }
 
 // Request
 type CreateUser struct {
-	Name     string   `json:"name"`
-	Role     string   `json:"role"`
-	Email    string   `json:"email"`
+	UserModel
 	Password Password `json:"password"`
 }
 
 type EditUser struct {
-	ID        uint   `json:"id"`
-	Name      string `json:"name"`
-	Role      string `json:"role"`
-	Email     string `json:"email"`
-	IsEnabled bool   `json:"is_enabled"`
+	ID        uint `json:"id"`
+	IsEnabled bool `json:"is_enabled"`
+	UserModel
 }
 
-type ResetPassword struct {
+type ChangePassword struct {
 	ID          uint     `json:"id"`
-	OldPassword Password `json:"OldPassword"`
 	Password    Password `json:"password"`
-}
-
-type LoginUser struct {
-	Email    string   `json:"email"`
-	Password Password `json:"password"`
+	NewPassword Password `json:"newPassword"`
 }
