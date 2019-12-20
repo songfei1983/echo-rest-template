@@ -2,9 +2,9 @@ package user
 
 import (
 	"context"
-	"github.com/songfei1983/go-api-server/helper"
 	"github.com/songfei1983/go-api-server/internal/model"
-	"github.com/songfei1983/go-api-server/logger"
+	"github.com/songfei1983/go-api-server/pkg/helper"
+	"github.com/songfei1983/go-api-server/pkg/logger"
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
@@ -95,7 +95,7 @@ func (u handler) Create(c echo.Context) error {
 
 	logger.Info(c, "create user")
 	c.Set("data", *m)
-	ctx := helper.CustomContext{Context:c}
+	ctx := helper.CustomContext{Context: c}
 	if err := u.userUserCase.Create(ctx, m); err != nil {
 		c.Logger().Error(err)
 		return c.NoContent(http.StatusBadRequest)

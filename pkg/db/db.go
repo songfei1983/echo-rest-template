@@ -6,7 +6,7 @@ import (
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
-	"github.com/songfei1983/go-api-server/logger"
+	"github.com/songfei1983/go-api-server/pkg/logger"
 	gormzap "github.com/wantedly/gorm-zap"
 )
 

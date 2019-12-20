@@ -2,9 +2,9 @@ package user
 
 import (
 	"context"
-	"github.com/songfei1983/go-api-server/helper"
 	"github.com/songfei1983/go-api-server/internal/model"
-	"github.com/songfei1983/go-api-server/logger"
+	"github.com/songfei1983/go-api-server/pkg/helper"
+	"github.com/songfei1983/go-api-server/pkg/logger"
 )
 
 type UseCase interface {

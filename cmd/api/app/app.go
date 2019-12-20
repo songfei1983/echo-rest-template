@@ -1,7 +1,7 @@
 package app
 
 import (
-	"github.com/songfei1983/go-api-server/helper"
+	"github.com/songfei1983/go-api-server/pkg/helper"
 	"net/http"
 
 	"github.com/jinzhu/gorm"
@@ -9,8 +9,8 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
-	"github.com/songfei1983/go-api-server/db"
-	"github.com/songfei1983/go-api-server/logger"
+	"github.com/songfei1983/go-api-server/pkg/db"
+	"github.com/songfei1983/go-api-server/pkg/logger"
 	gormzap "github.com/wantedly/gorm-zap"
 )
 
