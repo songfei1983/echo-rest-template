@@ -1,0 +1,23 @@
+settings:
+  legacy:
+    force: false
+    interval: 0s
+schema:
+- name: api
+  path: .
+  commands:
+    install:
+      status: true
+      method: go build -o bin/api ./cmd/api
+    run:
+      status: true
+      method: ./bin/api
+  watcher:
+    extensions:
+    - go
+    paths:
+    - .
+    ignored_paths:
+    - .git
+    - .realize
+    - vendor

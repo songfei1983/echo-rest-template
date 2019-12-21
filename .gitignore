@@ -1,3 +1,9 @@
 #IDE
 .idea
 *.iml
+
+#DB
+*.db
+
+#EXEC
+bin/
