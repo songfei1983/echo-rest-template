@@ -1,7 +1,6 @@
 package app
 
 import (
-	"github.com/songfei1983/go-api-server/pkg/helper"
 	"net/http"
 
 	"github.com/jinzhu/gorm"
@@ -9,13 +8,16 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
-	"github.com/songfei1983/go-api-server/pkg/db"
-	"github.com/songfei1983/go-api-server/pkg/logger"
 	gormzap "github.com/wantedly/gorm-zap"
+
+	"github.com/songfei1983/go-api-server/pkg/config"
+	"github.com/songfei1983/go-api-server/pkg/db"
+	"github.com/songfei1983/go-api-server/pkg/helper"
+	"github.com/songfei1983/go-api-server/pkg/logger"
 )
 
 type APP struct {
-	Config Config
+	Config *config.Config
 	DB     *gorm.DB
 	Server *echo.Echo
 	Authorized *echo.Group
@@ -28,13 +30,11 @@ func New() *APP {
 	return app
 }
 
-type Config struct{}
-
-func (app *APP) Start() {
-	app.Server.Logger.Fatal(app.Server.Start(":1323"))
+func (a *APP) Start() {
+	a.Server.Logger.Fatal(a.Server.Start(":1323"))
 }
 
-func (app *APP) db() *gorm.DB {
+func (a *APP) db() *gorm.DB {
 	db, err := gorm.Open("sqlite3", "test.db")
 	if err != nil {
 		log.Fatal("failed to connect database")
@@ -44,18 +44,18 @@ func (app *APP) db() *gorm.DB {
 	return db
 }
 
-func (app *APP) Migrate() {
-	db.Migrate(app.DB)
+func (a *APP) Migrate() {
+	db.Migrate(a.DB)
 }
 
-func (app *APP) server() *echo.Echo {
+func (a *APP) server() *echo.Echo {
 	e := echo.New()
 	e.Use(middleware.RequestID())
 	e.Use(logger.ZapLogger())
 	e.Use(middleware.CORS())
 	e.Use(middleware.JWTWithConfig(helper.DefaultJWTConfig))
 	// e.Use(middleware.Recover())
-	app.Authorized = e.Group("/api", helper.AuthenticationMiddleware)
+	a.Authorized = e.Group("/api", helper.AuthenticationMiddleware)
 
 	e.Logger.SetLevel(log.DEBUG)
 
@@ -66,9 +66,9 @@ func (app *APP) server() *echo.Echo {
 	return e
 }
 
-func (app *APP) Close() {
-	if app.DB != nil{
-		if err := app.DB.Close(); err != nil {
+func (a *APP) Close() {
+	if a.DB != nil{
+		if err := a.DB.Close(); err != nil {
 			log.Error(err)
 		}
 	}
