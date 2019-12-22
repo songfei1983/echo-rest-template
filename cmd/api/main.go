@@ -1,8 +1,7 @@
 package main
 
 import (
-	"log"
-
+	"github.com/labstack/gommon/log"
 	"github.com/songfei1983/go-api-server/cmd/api/app"
 	"github.com/songfei1983/go-api-server/internal/login"
 	"github.com/songfei1983/go-api-server/internal/user"
@@ -10,10 +9,10 @@ import (
 )
 
 func main() {
-	api := app.New()
-	conf := config.NewConfig(api.Server.Logger)
+	conf := config.NewConfig(log.New(""))
 	conf.InitFlag()
-	api.Config = conf.ParseConfig()
+	apiConf := conf.ParseConfig()
+	api := app.New(apiConf)
 	defer api.Close()
 	api.Migrate()
 	registerHandler(api)

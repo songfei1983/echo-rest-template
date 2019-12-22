@@ -1,12 +1,14 @@
 log_leve: "debug"
 
 database:
-  driver: mysql
-  host: localhost
-  port: 3306
-  dbname: test
-  user: test
-  password: test
+  driver: sqlite3
+  dbname: test.db
+#   driver: mysql
+#   host: localhost
+#   port: 3306
+#   dbname: test
+#   user: test
+#   password: test
 
 api_server:
   port: 8000

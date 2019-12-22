@@ -2,6 +2,7 @@ package app
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
@@ -17,14 +18,15 @@ import (
 )
 
 type APP struct {
-	Config *config.Config
-	DB     *gorm.DB
-	Server *echo.Echo
+	Config     *config.Config
+	DB         *gorm.DB
+	Server     *echo.Echo
 	Authorized *echo.Group
 }
 
-func New() *APP {
+func New(c *config.Config) *APP {
 	app := new(APP)
+	app.Config = c
 	app.Server = app.server()
 	app.DB = app.db()
 	return app
@@ -35,7 +37,7 @@ func (a *APP) Start() {
 }
 
 func (a *APP) db() *gorm.DB {
-	db, err := gorm.Open("sqlite3", "test.db")
+	db, err := gorm.Open(a.Config.DB.Driver, a.Config.DB.DBName)
 	if err != nil {
 		log.Fatal("failed to connect database")
 	}
@@ -57,7 +59,7 @@ func (a *APP) server() *echo.Echo {
 	// e.Use(middleware.Recover())
 	a.Authorized = e.Group("/api", helper.AuthenticationMiddleware)
 
-	e.Logger.SetLevel(log.DEBUG)
+	e.Logger.SetLevel(logLevel(a.Config.LogLevel))
 
 	e.GET("/hc", func(c echo.Context) error {
 		logger.Info(c, "hc")
@@ -66,8 +68,22 @@ func (a *APP) server() *echo.Echo {
 	return e
 }
 
+func logLevel(s string) log.Lvl {
+	lvm := map[string]log.Lvl{
+		"debug": log.DEBUG,
+		"info":  log.INFO,
+		"error": log.ERROR,
+		"warn":  log.WARN,
+	}
+	lv, ok := lvm[strings.ToLower(s)]
+	if ok {
+		return lv
+	}
+	return log.OFF
+}
+
 func (a *APP) Close() {
-	if a.DB != nil{
+	if a.DB != nil {
 		if err := a.DB.Close(); err != nil {
 			log.Error(err)
 		}
