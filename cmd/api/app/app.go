@@ -13,7 +13,6 @@ import (
 
 	"github.com/songfei1983/go-api-server/pkg/config"
 	"github.com/songfei1983/go-api-server/pkg/db"
-	"github.com/songfei1983/go-api-server/pkg/helper"
 	"github.com/songfei1983/go-api-server/pkg/logger"
 )
 
@@ -21,7 +20,6 @@ type APP struct {
 	Config     *config.Config
 	DB         *gorm.DB
 	Server     *echo.Echo
-	Authorized *echo.Group
 }
 
 func New(c *config.Config) *APP {
@@ -55,12 +53,8 @@ func (a *APP) server() *echo.Echo {
 	e.Use(middleware.RequestID())
 	e.Use(logger.ZapLogger())
 	e.Use(middleware.CORS())
-	e.Use(middleware.JWTWithConfig(helper.DefaultJWTConfig))
-	// e.Use(middleware.Recover())
-	a.Authorized = e.Group("/api", helper.AuthenticationMiddleware)
-
+	e.Use(middleware.Recover())
 	e.Logger.SetLevel(logLevel(a.Config.LogLevel))
-
 	e.GET("/hc", func(c echo.Context) error {
 		logger.Info(c, "hc")
 		return c.String(http.StatusOK, "ok")

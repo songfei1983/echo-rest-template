@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/songfei1983/go-api-server/internal/model"
 	"github.com/songfei1983/go-api-server/pkg/helper"
 	"github.com/songfei1983/go-api-server/pkg/logger"
@@ -19,11 +20,14 @@ func NewController(api *app.APP) error {
 	userUseCase := NewUseCase(userRepository)
 	userHandler := NewHandler(userUseCase)
 	// router
-	api.Authorized.GET("/users", userHandler.List)
-	api.Authorized.GET("/users/:id", userHandler.List)
-	api.Authorized.POST("/users", userHandler.GetByID)
-	api.Authorized.PUT("/users/:id", userHandler.Update)
-	api.Authorized.DELETE("/users/:id", userHandler.Delete)
+	middlewares := []echo.MiddlewareFunc{
+		middleware.JWTWithConfig(helper.DefaultJWTConfig), helper.AuthenticationMiddleware,
+	}
+	api.Server.GET("/users", userHandler.List, middlewares...)
+	api.Server.GET("/users/:id", userHandler.List, middlewares...)
+	api.Server.POST("/users", userHandler.GetByID, middlewares...)
+	api.Server.PUT("/users/:id", userHandler.Update, middlewares...)
+	api.Server.DELETE("/users/:id", userHandler.Delete, middlewares...)
 	return nil
 }
 
