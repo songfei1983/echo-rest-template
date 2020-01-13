@@ -16,9 +16,9 @@ import (
 func NewController(api *app.APP) error {
 	api.Server.Logger.Info("New user handler")
 	// inject
-	userRepository := NewUserPersistence(api)
+	userRepository := NewUserRepository(api)
 	userUseCase := NewUseCase(userRepository)
-	userHandler := NewHandler(userUseCase)
+	userHandler := newHandler(userUseCase)
 	// router
 	middlewares := []echo.MiddlewareFunc{
 		middleware.JWTWithConfig(helper.DefaultJWTConfig), helper.AuthenticationMiddleware,
@@ -26,31 +26,34 @@ func NewController(api *app.APP) error {
 	api.Server.GET("/users", userHandler.List, middlewares...)
 	api.Server.GET("/users/:id", userHandler.List, middlewares...)
 	api.Server.POST("/users", userHandler.GetByID, middlewares...)
-	api.Server.PUT("/users/:id", userHandler.Update, middlewares...)
+	api.Server.PUT("/users/:id", userHandler.Update2, middlewares...)
 	api.Server.DELETE("/users/:id", userHandler.Delete, middlewares...)
 	return nil
 }
 
-type Handler interface {
-	List(c echo.Context) error
-	Create(c echo.Context) error
-	Update(c echo.Context) error
-	Delete(c echo.Context) error
-	GetByID(c echo.Context) error
-}
-
 type handler struct {
 	userUserCase UseCase
+	Update2 echo.HandlerFunc
 }
 
-func NewHandler(u UseCase) Handler {
-	return handler{
+func newHandler(u UseCase) handler {
+	h := handler{
 		userUserCase: u,
+	}
+	h.Update2 = c(func(c *helper.CustomContext) error {
+		return nil
+	})
+	return h
+}
+
+type callFunc func(c *helper.CustomContext) error
+func c(h callFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		return h(c.(*helper.CustomContext))
 	}
 }
 
 func (u handler) Update(c echo.Context) error {
-	c.Logger().Info("implement me")
 	return nil
 }
 

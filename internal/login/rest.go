@@ -68,13 +68,13 @@ func (h handler) Register(c echo.Context) error {
 func NewController(api *app.APP) error {
 	api.Server.Logger.Info("Created login controller")
 
-	userRepo := user.NewUserPersistence(api)
+	userRepo := user.NewUserRepository(api)
 	userUseCase := user.NewUseCase(userRepo)
 	loginUseCase := NewUseCase()
 	h := NewHandler(loginUseCase, userUseCase)
 
 	api.Server.POST("/login", h.Login)
-	api.Server.GET("/logout", h.Login)
+	api.Server.GET("/logout", h.Logout)
 	api.Server.POST("/register", h.Register)
 	return nil
 }

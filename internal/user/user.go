@@ -27,7 +27,8 @@ type useCase struct {
 }
 
 func (u *useCase) Create(ctx helper.CustomContext, m *model.CreateUser) error {
-	if err := u.userRepository.CreateUser(ctx, m); err != nil {
+	e := FromUserModel(m)
+	if err := u.userRepository.CreateUser(e); err != nil {
 		return err
 	}
 	return nil
@@ -48,14 +49,22 @@ func (u *useCase) GetByID(ctx context.Context) (*model.User, error) {
 func (u *useCase) GetAll(ctx context.Context) ([]*model.User, error) {
 	c := ctx.Value("ctx").(*helper.CustomContext)
 	logger.Info(c, "Account name from context: %v", c.Get("AccountName"))
-	res, err := u.userRepository.GetAll(ctx)
+	res, err := u.userRepository.GetAllUser()
 	if err != nil {
 		return nil, err
 	}
-	return res, nil
+	ms := make([]*model.User, len(res))
+	for k,v := range res {
+		ms[k] = ToUserModel(v)
+	}
+	return ms, nil
 }
 
 func (u *useCase) GetByEmail(cc helper.CustomContext, email string) (*model.User, error) {
-	return u.userRepository.GetByEmail(email)
+	e, err := u.userRepository.GetUserByEmail(email)
+	if err != nil {
+		return nil, err
+	}
+	return ToUserModel(e), err
 }
 
