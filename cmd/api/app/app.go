@@ -1,6 +1,7 @@
 package app
 
 import (
+	"github.com/go-playground/validator/v10"
 	"net/http"
 	"strings"
 
@@ -53,7 +54,8 @@ func (a *APP) server() *echo.Echo {
 	e.Use(middleware.RequestID())
 	e.Use(logger.ZapLogger())
 	e.Use(middleware.CORS())
-	e.Use(middleware.Recover())
+	e.HTTPErrorHandler = customHTTPErrorHandler
+	// e.Use(middleware.Recover())
 	e.Logger.SetLevel(logLevel(a.Config.LogLevel))
 	e.GET("/hc", func(c echo.Context) error {
 		logger.Info(c, "hc")
@@ -83,3 +85,15 @@ func (a *APP) Close() {
 		}
 	}
 }
+
+func customHTTPErrorHandler(err error, c echo.Context) {
+	code := http.StatusBadRequest
+	if he, ok := err.(validator.ValidationErrors); ok {
+		c.JSON(code, he.Error())
+	}
+	if he, ok := err.(*echo.HTTPError); ok {
+		code = he.Code
+	}
+	c.Logger().Error(err)
+}
+

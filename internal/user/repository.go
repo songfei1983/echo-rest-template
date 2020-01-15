@@ -1,45 +1,24 @@
 package user
 
 import (
+	"github.com/jinzhu/gorm"
 	"github.com/songfei1983/go-api-server/cmd/api/app"
-	"github.com/songfei1983/go-api-server/internal/entity"
 	"github.com/songfei1983/go-api-server/internal/model"
-	"github.com/songfei1983/go-api-server/internal/persistence"
 )
 
 type Repository interface {
-	GetAllUser() ([]*entity.User, error)
-	CreateUser(m *entity.User) error
-	GetUserByID(id int) (*entity.User, error)
-	GetUserByEmail(email string) (*entity.User, error)
+	GetAllUser() ([]*model.User, error)
 }
 
 func NewUserRepository(api *app.APP) Repository {
-	return &userRepository{persistence.Persistence{DB: api.DB}}
+	return &repository{api.DB}
 }
 
-type userRepository struct {
-	persistence.Persistence
+type repository struct {
+	DB *gorm.DB
 }
 
-func ToUserModel(e *entity.User) *model.User {
-	u := new(model.User)
-	u.ID = e.ID
-	u.Name = e.Name
-	u.Email = e.Email
-	u.IsEnabled = e.IsEnabled
-	u.Password = u.Password.Mask()
-	return u
-}
-func FromUserModel(i interface{}) *entity.User {
-	e := new(entity.User)
-	switch m := i.(type) {
-	case *model.CreateUser:
-		e.Name = m.Name
-		e.Email = m.Email
-		e.Password = m.Password.HashAndSalt()
-		e.IsEnabled = true
-		e.Role = m.Role
-	}
-	return e
+func (r repository) GetAllUser() (users []*model.User, err error) {
+	err = r.DB.Find(&users).Error
+	return users, err
 }

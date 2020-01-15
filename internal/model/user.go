@@ -1,23 +1,24 @@
 package model
 
 import (
+	"encoding/json"
 	"fmt"
+	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
 )
 
-// Data
-type UserModel struct {
-	Name  string `json:"name"`
-	Role  string `json:"role"`
-	Email string `json:"email"`
+type User struct {
+	gorm.Model
+	Name      string `validate:"required"`
+	Role      string
+	Email     string `validate:"required"`
+	Password  string `validate:"required"`
+	IsEnabled bool
 }
 
-// Response
-type User struct {
-	ID        uint     `json:"id"`
-	Password  Password `json:"password"`
-	IsEnabled bool     `json:"is_enabled"`
-	UserModel
+func (u *User) MarshalJSON() ([]byte, error) {
+	u.Password = Password(u.Password).Mask().String()
+	return json.Marshal(*u)
 }
 
 // Value
@@ -35,26 +36,8 @@ func (p Password) Mask() Password {
 	return "******"
 }
 
-func (p Password) Verify(plainPwd Password) bool {
+func (p Password) Verify(plainPwd string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(p), []byte(plainPwd))
 	fmt.Println(err)
 	return err == nil
-}
-
-// Request
-type CreateUser struct {
-	UserModel
-	Password Password `json:"password"`
-}
-
-type EditUser struct {
-	ID        uint `json:"id"`
-	IsEnabled bool `json:"is_enabled"`
-	UserModel
-}
-
-type ChangePassword struct {
-	ID          uint     `json:"id"`
-	Password    Password `json:"password"`
-	NewPassword Password `json:"newPassword"`
 }
