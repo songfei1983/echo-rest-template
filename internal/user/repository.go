@@ -2,7 +2,7 @@ package user
 
 import (
 	"github.com/jinzhu/gorm"
-	"github.com/songfei1983/go-api-server/cmd/api/app"
+	"github.com/songfei1983/go-api-server/internal/server"
 	"github.com/songfei1983/go-api-server/internal/model"
 )
 
@@ -10,7 +10,7 @@ type Repository interface {
 	GetAllUser() ([]*model.User, error)
 }
 
-func NewUserRepository(api *app.APP) Repository {
+func NewUserRepository(api *server.API) Repository {
 	return &repository{api.DB}
 }
 

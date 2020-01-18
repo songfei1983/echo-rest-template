@@ -23,6 +23,7 @@ type Database struct {
 	DBName   string `mapstructure:"dbname"`
 	User     string `mapstructure:"user"`
 	Password string `mapstructure:"password"`
+	LogMode  bool   `mapstructure:"log_mode"`
 }
 type APIServer struct {
 	Host string `mapstructure:"host"`

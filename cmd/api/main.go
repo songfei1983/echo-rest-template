@@ -2,25 +2,30 @@ package main
 
 import (
 	"github.com/labstack/gommon/log"
-	"github.com/songfei1983/go-api-server/cmd/api/app"
 	"github.com/songfei1983/go-api-server/internal/login"
+	"github.com/songfei1983/go-api-server/internal/server"
 	"github.com/songfei1983/go-api-server/internal/user"
 	"github.com/songfei1983/go-api-server/pkg/config"
 )
 
 func main() {
+	// config
 	conf := config.NewConfig(log.New(""))
 	conf.InitFlag()
 	apiConf := conf.ParseConfig()
-	api := app.New(apiConf)
+	// api server
+	api, err := server.Open(apiConf, server.DB(), server.Serve())
+	if err != nil {
+		panic(err)
+	}
 	defer api.Close()
-	api.Migrate()
+	// handle
 	registerHandler(api)
 	api.Start()
 }
 
-func registerHandler(api *app.APP) {
-	type Controller func(api *app.APP) error
+func registerHandler(api *server.API) {
+	type Controller func(api *server.API) error
 	for _, handler := range []Controller{
 		user.NewController,
 		login.NewController,

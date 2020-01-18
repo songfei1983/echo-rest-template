@@ -6,10 +6,10 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	"github.com/songfei1983/go-api-server/cmd/api/app"
+	"github.com/songfei1983/go-api-server/internal/server"
 )
 
-func NewController(api *app.APP) error {
+func NewController(api *server.API) error {
 	api.Server.Logger.Info("New user handler")
 	// inject
 	userRepository := NewUserRepository(api)

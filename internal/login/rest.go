@@ -3,7 +3,7 @@ package login
 import (
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
-	"github.com/songfei1983/go-api-server/cmd/api/app"
+	"github.com/songfei1983/go-api-server/internal/server"
 	"github.com/songfei1983/go-api-server/internal/model"
 	"net/http"
 )
@@ -50,7 +50,7 @@ func (h handler) Register(c echo.Context) error {
 	return c.NoContent(http.StatusCreated)
 }
 
-func NewController(api *app.APP) error {
+func NewController(api *server.API) error {
 	loginUseCase := NewUseCase(NewRepository(api), api.Server.Logger)
 	h := newHandler(loginUseCase)
 
