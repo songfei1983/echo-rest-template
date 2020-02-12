@@ -2,14 +2,13 @@ package server
 
 import (
 	"github.com/go-playground/validator/v10"
-	gormzap "github.com/wantedly/gorm-zap"
+	"github.com/labstack/echo/v4/middleware"
 	"net/http"
 	"strings"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
 	"github.com/songfei1983/go-api-server/pkg/config"
 	"github.com/songfei1983/go-api-server/pkg/logger"
@@ -40,7 +39,8 @@ func DB() func(*API) error {
 			return err
 		}
 		conn.LogMode(a.Config.DB.LogMode)
-		conn.SetLogger(gormzap.New(logger.New()))
+		// conn.SetLogger(gormzap.New(logger.New()))
+		conn.Debug()
 		a.DB = conn
 		return nil
 	}
@@ -49,12 +49,13 @@ func DB() func(*API) error {
 func Serve() func(*API) error {
 	return func(a *API) error {
 		e := echo.New()
-		e.Use(middleware.RequestID())
-		e.Use(logger.ZapLogger())
-		e.Use(middleware.CORS())
-		e.HTTPErrorHandler = customHTTPErrorHandler
+		//e.Use(middleware.RequestID())
+		//e.Use(logger.ZapLogger())
+		// e.Use(middleware.CORS())
+		// e.HTTPErrorHandler = customHTTPErrorHandler
 		// e.Use(middleware.Recover())
-		e.Logger.SetLevel(logLevel(a.Config.LogLevel))
+		e.Use(middleware.Logger())
+		e.Logger.SetLevel(log.DEBUG)
 		e.GET("/hc", func(c echo.Context) error {
 			logger.Info(c, "hc")
 			return c.String(http.StatusOK, "ok")
@@ -83,6 +84,7 @@ func customHTTPErrorHandler(err error, c echo.Context) {
 	}
 	if he, ok := err.(*echo.HTTPError); ok {
 		code = he.Code
+		c.JSON(he.Code, he.Error())
 	}
 	c.Logger().Error(err)
 }

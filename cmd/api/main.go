@@ -2,10 +2,10 @@ package main
 
 import (
 	"github.com/labstack/gommon/log"
-	"github.com/songfei1983/go-api-server/internal/login"
 	"github.com/songfei1983/go-api-server/internal/server"
 	"github.com/songfei1983/go-api-server/internal/user"
 	"github.com/songfei1983/go-api-server/pkg/config"
+	"net/http"
 )
 
 func main() {
@@ -19,20 +19,16 @@ func main() {
 		panic(err)
 	}
 	defer api.Close()
-	// handle
-	registerHandler(api)
+	InitRouter(api)
 	api.Start()
 }
 
-func registerHandler(api *server.API) {
-	type Controller func(api *server.API) error
-	for _, handler := range []Controller{
-		user.NewController,
-		login.NewController,
-	} {
-		if err := handler(api); err != nil {
-			log.Fatal(err)
-		}
+func InitRouter(api *server.API) {
+	g := api.Server.Group("/api")
+	actions := []server.Action{
+		server.NewAction(http.MethodGet, "/users", user.NewList(api)),
+		server.NewAction(http.MethodPost, "/login", user.NewLogin(api)),
+		server.NewAction(http.MethodPost, "/register", user.NewRegister(api)),
 	}
+	server.NewRouter(g, actions...)
 }
-
