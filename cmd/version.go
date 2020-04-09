@@ -6,8 +6,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func init() {
+var _ = InitVersionCmd()
+
+func InitVersionCmd() struct{} {
 	rootCmd.AddCommand(versionCmd)
+	return struct{}{}
 }
 
 var versionCmd = &cobra.Command{
