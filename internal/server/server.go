@@ -11,20 +11,20 @@ import (
 	"github.com/songfei1983/go-api-server/internal/repository"
 )
 
-var app *App
+var app *Server
 var once sync.Once
 
-type App struct {
-	Listener *echo.Echo
-	Timeout  time.Duration
-	Repo     *repository.Repository
+type Server struct {
+	Mux     *echo.Echo
+	Timeout time.Duration
+	Repo    *repository.Repository
 }
 
-func NewApp(options ...func(*App)) (*App, error) {
+func NewApp(options ...func(*Server)) (*Server, error) {
 	once.Do(func() {
 		e := echo.New()
 		e.Use(middleware.Logger())
-		srv := App{Listener: e}
+		srv := Server{Mux: e}
 		for _, option := range options {
 			option(&srv)
 		}
@@ -33,21 +33,21 @@ func NewApp(options ...func(*App)) (*App, error) {
 	return app, nil
 }
 
-func Timeout(t int) func(*App) {
-	return func(s *App) {
+func Timeout(t int) func(*Server) {
+	return func(s *Server) {
 		s.Timeout = time.Duration(t) * time.Second
 	}
 }
 
-func DatabaseMySQL(dataSourceName string) func(*App) {
-	return func(s *App) {
+func InitRepository(dataSourceName string) func(*Server) {
+	return func(s *Server) {
 		db, err := gorm.Open("mysql", dataSourceName)
 		if err != nil {
-			s.Listener.Logger.Fatal(err)
+			s.Mux.Logger.Fatal(err)
 		}
 		s.Repo, err = repository.New(db)
 		if err != nil {
-			s.Listener.Logger.Fatal(err)
+			s.Mux.Logger.Fatal(err)
 		}
 	}
 }

@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/labstack/echo/v4"
 	"github.com/songfei1983/go-api-server/internal/adunit"
 	"github.com/songfei1983/go-api-server/internal/server"
 	"github.com/spf13/cobra"
@@ -27,20 +28,24 @@ var serverCmd = &cobra.Command{
 	Short: "start server",
 	Long:  `start a http(s) server`,
 	Run: func(cmd *cobra.Command, args []string) {
-		var options []func(*server.App)
+		var options []func(*server.Server)
 		if len(dataSource) > 0 {
-			options = append(options, server.DatabaseMySQL(dataSource))
+			options = append(options, server.InitRepository(dataSource))
 		}
 		s, err := server.NewApp(options...)
 		if err != nil {
-			s.Listener.Logger.Fatal(err)
+			s.Mux.Logger.Fatal(err)
 		}
+		s.Mux.Use(func(h echo.HandlerFunc) echo.HandlerFunc {
+			return func(c echo.Context) error {
+				return h(&server.Context{Context: c, Server: s})
+			}
+		})
 		routes(s)
-		s.Listener.Logger.Fatal(s.Listener.Start(address))
+		s.Mux.Logger.Fatal(s.Mux.Start(address))
 	},
 }
 
-func routes(app *server.App) {
-	adunitHandler := adunit.InitHandler()
-	app.Listener.GET("/adunits", adunitHandler.List)
+func routes(app *server.Server) {
+	app.Mux.GET("/adunits", server.ActionFunc(adunit.List))
 }

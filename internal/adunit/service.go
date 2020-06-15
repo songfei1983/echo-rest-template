@@ -3,7 +3,7 @@ package adunit
 import (
 	"net/http"
 
-	"github.com/labstack/echo/v4"
+	"github.com/songfei1983/go-api-server/internal/server"
 )
 
 type AdUnit struct {
@@ -28,7 +28,7 @@ func InitHandler() *Handler {
 	return h
 }
 
-func (h *Handler) List(c echo.Context) error {
+func List(c *server.Context) error {
 	fake := &AdUnit{
 		Code:  "hoge",
 		Sizes: []Size{{100, 120}},
