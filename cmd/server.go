@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"github.com/labstack/echo/v4"
 	"github.com/songfei1983/go-api-server/internal/adunit"
 	"github.com/songfei1983/go-api-server/internal/server"
 	"github.com/spf13/cobra"
@@ -36,16 +35,8 @@ var serverCmd = &cobra.Command{
 		if err != nil {
 			s.Mux.Logger.Fatal(err)
 		}
-		s.Mux.Use(func(h echo.HandlerFunc) echo.HandlerFunc {
-			return func(c echo.Context) error {
-				return h(&server.Context{Context: c, Server: s})
-			}
-		})
-		routes(s)
+		s.Mux.Use(s.WrapperContext)
+		adunit.Bind("/adunits", s)
 		s.Mux.Logger.Fatal(s.Mux.Start(address))
 	},
-}
-
-func routes(app *server.Server) {
-	app.Mux.GET("/adunits", server.ActionFunc(adunit.List))
 }

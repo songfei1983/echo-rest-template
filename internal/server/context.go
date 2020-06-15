@@ -14,3 +14,9 @@ func ActionFunc(h HandleFunc) echo.HandlerFunc {
 		return h(c.(*Context))
 	}
 }
+
+func (s *Server) WrapperContext(h echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		return h(&Context{Context: c, Server: s})
+	}
+}
