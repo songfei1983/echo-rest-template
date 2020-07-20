@@ -1,13 +1,17 @@
 package server
 
 import (
+	"context"
+	"log"
 	"sync"
 	"time"
 
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql" //import the database’s driver
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	_ "github.com/mattn/go-sqlite3"
+
+	"github.com/songfei1983/go-api-server/ent"
+	"github.com/songfei1983/go-api-server/ent/migrate"
 	"github.com/songfei1983/go-api-server/internal/repository"
 )
 
@@ -39,15 +43,21 @@ func Timeout(t int) func(*Server) {
 	}
 }
 
-func InitRepository(dataSourceName string) func(*Server) {
+func InitRepository(driverName, dataSourceName string, options ...ent.Option) func(*Server) {
 	return func(s *Server) {
-		db, err := gorm.Open("mysql", dataSourceName)
+		client, err := ent.Open(driverName, dataSourceName, options...)
 		if err != nil {
 			s.Mux.Logger.Fatal(err)
 		}
-		s.Repo, err = repository.New(db)
+		// Run migration.
+		err = client.Schema.Create(
+			context.Background(),
+			migrate.WithDropIndex(true),
+			migrate.WithDropColumn(true),
+		)
 		if err != nil {
-			s.Mux.Logger.Fatal(err)
+			log.Fatalf("failed creating schema resources: %v", err)
 		}
+		s.Repo = repository.New(client)
 	}
 }

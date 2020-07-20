@@ -15,7 +15,7 @@ var _ = initServerCmd()
 
 func initServerCmd() struct{} {
 	serverCmd.Flags().StringVar(&address, "address", ":1323", "host:port")
-	serverCmd.Flags().StringVar(&dataSource, "db", "", "user:password@/dbname?charset=utf8&parseTime=True&loc=Local")
+	serverCmd.Flags().StringVar(&dataSource, "db", "", "file:ent?mode=memory&cache=shared&_fk=1")
 	// _ = serverCmd.MarkFlagRequired("db")
 
 	rootCmd.AddCommand(serverCmd)
@@ -29,7 +29,7 @@ var serverCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		var options []func(*server.Server)
 		if len(dataSource) > 0 {
-			options = append(options, server.InitRepository(dataSource))
+			options = append(options, server.InitRepository("sqlite3", dataSource))
 		}
 		s, err := server.NewApp(options...)
 		if err != nil {
