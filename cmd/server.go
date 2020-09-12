@@ -1,22 +1,28 @@
 package cmd
 
 import (
-	"github.com/songfei1983/go-api-server/internal/adunit"
-	"github.com/songfei1983/go-api-server/internal/server"
+	"log"
+	"net/http"
+	"time"
+
 	"github.com/spf13/cobra"
+
+	"github.com/songfei1983/go-api-server/internal/config"
+	"github.com/songfei1983/go-api-server/internal/handler"
+	"github.com/songfei1983/go-api-server/internal/persistent"
+	"github.com/songfei1983/go-api-server/internal/server"
 )
 
 var (
-	address    string
-	dataSource string
+	hostname string
+	port     int
 )
 
 var _ = initServerCmd()
 
 func initServerCmd() struct{} {
-	serverCmd.Flags().StringVar(&address, "address", ":1323", "host:port")
-	serverCmd.Flags().StringVar(&dataSource, "db", "", "file:ent?mode=memory&cache=shared&_fk=1")
-	// _ = serverCmd.MarkFlagRequired("db")
+	serverCmd.Flags().StringVar(&hostname, "hostname", "localhost", "hostname")
+	serverCmd.Flags().IntVar(&port, "port", 8888, "port")
 
 	rootCmd.AddCommand(serverCmd)
 	return struct{}{}
@@ -27,16 +33,23 @@ var serverCmd = &cobra.Command{
 	Short: "start server",
 	Long:  `start a http(s) server`,
 	Run: func(cmd *cobra.Command, args []string) {
-		var options []func(*server.Server)
-		if len(dataSource) > 0 {
-			options = append(options, server.InitRepository("sqlite3", dataSource))
+		conf := config.Config{Server: config.Server{
+			Hostname: hostname,
+			Port:     port,
+			Protocol: "http",
+		}, Persistent: config.Persistent{GoCache: config.GoCache{
+			DefaultExpiredTime: 5 * time.Minute,
+			CleanupInterval:    10 * time.Minute,
+		}}}
+		s := server.NewEchoServer(conf)
+		p := persistent.NewGoCache(conf)
+		c := handler.NewEchoHandler(p)
+		if err := s.Handle(http.MethodGet, "/key", c.Load()); err != nil {
+			log.Fatal(err)
 		}
-		s, err := server.NewApp(options...)
-		if err != nil {
-			s.Mux.Logger.Fatal(err)
+		if err := s.Handle(http.MethodPut, "/key", c.Create()); err != nil {
+			log.Fatal(err)
 		}
-		s.Mux.Use(s.WrapperContext)
-		adunit.Bind("/adunits", s)
-		s.Mux.Logger.Fatal(s.Mux.Start(address))
+		s.Start()
 	},
 }
