@@ -4,8 +4,9 @@ import (
 	"context"
 	"time"
 
-	"github.com/labstack/gommon/log"
+	"github.com/swaggo/echo-swagger"
 
+	_ "github.com/songfei1983/go-api-server/docs"
 	"github.com/songfei1983/go-api-server/internal/api/controllers"
 	"github.com/songfei1983/go-api-server/internal/pkg/cache"
 	"github.com/songfei1983/go-api-server/internal/pkg/config"
@@ -26,8 +27,9 @@ func Run(conf config.Config) {
 	globalServer = server.NewEchoServer(conf)
 	p := cache.NewGoCache(conf)
 	c := controllers.NewEchoHandler(p)
-	globalServer.Server().Logger.SetLevel(log.DEBUG)
+	globalServer.Server().Debug = true
 	globalServer.Server().Logger.SetHeader(`{"time":"${time_rfc3339}","level":"${level}","prefix":"${prefix}","file":"${long_file}","line":"${line}"}`)
+	globalServer.Server().GET("/swagger/*", echoSwagger.WrapHandler)
 	globalServer.Server().GET("/keys/:key", c.GetKey())
 	globalServer.Server().PUT("/keys", c.AddKeyValue())
 	globalServer.Start()

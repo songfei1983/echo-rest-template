@@ -3,6 +3,7 @@ package cli
 import (
 	"os"
 	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/labstack/gommon/log"
@@ -48,8 +49,8 @@ var serverCmd = &cobra.Command{
 		go func() {
 			api.Run(conf)
 		}()
-		quit := make(chan os.Signal)
-		signal.Notify(quit, os.Interrupt)
+		quit := make(chan os.Signal, 1)
+		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 		<-quit
 		if err := api.Shutdown(); err != nil {
 			log.Fatal(err)
