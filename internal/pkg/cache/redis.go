@@ -1,4 +1,4 @@
-package persistent
+package cache
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 
 	"github.com/go-redis/redis/v8"
 
-	"github.com/songfei1983/go-api-server/internal/config"
+	"github.com/songfei1983/go-api-server/internal/pkg/config"
 )
 
 type Redis struct {

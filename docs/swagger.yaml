@@ -1,0 +1,44 @@
+definitions:
+  model.KeyValue:
+    properties:
+      key:
+        type: string
+      value:
+        type: object
+    type: object
+info:
+  contact: {}
+paths:
+  /accounts:
+    put:
+      consumes:
+      - application/json
+      description: create an pair of key value
+      produces:
+      - application/json
+      responses:
+        "204": {}
+        "400": {}
+      summary: create key value
+  /key/{id}:
+    get:
+      consumes:
+      - application/json
+      description: get string by ID
+      operationId: get-string-by-int
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.KeyValue'
+        "400": {}
+      summary: Load a key
+swagger: "2.0"
