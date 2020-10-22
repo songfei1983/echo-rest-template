@@ -11,4 +11,11 @@ run:
 	go run cmd/api/main.go
 
 test:
-	go test -v ./test/...
+	go test -v ./...
+
+benchmark:
+	go test -v ./... -bench . -benchmem -benchtime 1s -run ^$
+
+all-test:
+	go test -v ./... -bench . -benchmem -benchtime 1s
+
