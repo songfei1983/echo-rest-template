@@ -26,7 +26,7 @@ const (
 var _ = initServerCmd()
 
 func initServerCmd() struct{} {
-	serverCmd.Flags().StringVar(&hostname, "hostname", "localhost", "hostname")
+	serverCmd.Flags().StringVar(&hostname, "host", "localhost", "host")
 	serverCmd.Flags().IntVar(&port, "port", 8888, "port")
 
 	rootCmd.AddCommand(serverCmd)

@@ -19,3 +19,9 @@ benchmark:
 all-test:
 	go test -v ./... -bench . -benchmem -benchtime 1s
 
+build-docker: build
+	docker build . -t api-rest
+
+run-docker: build-docker
+	docker run -p 8888:8888 -e PORT=8888 api-rest
+
