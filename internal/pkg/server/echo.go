@@ -19,7 +19,7 @@ func NewEchoServer(conf config.Config) *EchoServer {
 }
 
 func (s *EchoServer) Start() {
-	s.server.Logger.Fatal(s.server.Start(s.conf.Server.String()))
+	s.server.Logger.Info(s.server.Start(s.conf.Server.String()))
 }
 
 func (s *EchoServer) Server() *echo.Echo {

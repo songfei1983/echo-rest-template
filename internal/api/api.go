@@ -1,6 +1,9 @@
 package api
 
 import (
+	"context"
+	"time"
+
 	"github.com/labstack/gommon/log"
 
 	"github.com/songfei1983/go-api-server/internal/api/controllers"
@@ -17,12 +20,21 @@ import (
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 
 // @termsOfService http://swagger.io/terms/
+var globalServer *server.EchoServer
+
 func Run(conf config.Config) {
-	s := server.NewEchoServer(conf)
+	globalServer = server.NewEchoServer(conf)
 	p := cache.NewGoCache(conf)
 	c := controllers.NewEchoHandler(p)
-	s.Server().Logger.SetLevel(log.DEBUG)
-	s.Server().GET("/keys/:key", c.GetKey())
-	s.Server().PUT("/keys", c.AddKeyValue())
-	s.Start()
+	globalServer.Server().Logger.SetLevel(log.DEBUG)
+	globalServer.Server().Logger.SetHeader(`{"time":"${time_rfc3339}","level":"${level}","prefix":"${prefix}","file":"${long_file}","line":"${line}"}`)
+	globalServer.Server().GET("/keys/:key", c.GetKey())
+	globalServer.Server().PUT("/keys", c.AddKeyValue())
+	globalServer.Start()
+}
+
+func Shutdown() error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	return globalServer.Server().Shutdown(ctx)
 }
