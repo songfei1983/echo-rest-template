@@ -1,21 +1,22 @@
-package cmd
+package cli
 
 import (
-	"log"
-	"net/http"
 	"time"
 
 	"github.com/spf13/cobra"
 
-	"github.com/songfei1983/go-api-server/internal/config"
-	"github.com/songfei1983/go-api-server/internal/handler"
-	"github.com/songfei1983/go-api-server/internal/persistent"
-	"github.com/songfei1983/go-api-server/internal/server"
+	"github.com/songfei1983/go-api-server/internal/api"
+	"github.com/songfei1983/go-api-server/internal/pkg/config"
 )
 
 var (
 	hostname string
 	port     int
+)
+
+const (
+	DefaultExpiredTime = 5 * time.Minute
+	CleanupInterval    = 10 * time.Minute
 )
 
 var _ = initServerCmd()
@@ -38,18 +39,9 @@ var serverCmd = &cobra.Command{
 			Port:     port,
 			Protocol: "http",
 		}, Persistent: config.Persistent{GoCache: config.GoCache{
-			DefaultExpiredTime: 5 * time.Minute,
-			CleanupInterval:    10 * time.Minute,
+			DefaultExpiredTime: DefaultExpiredTime,
+			CleanupInterval:    CleanupInterval,
 		}}}
-		s := server.NewEchoServer(conf)
-		p := persistent.NewGoCache(conf)
-		c := handler.NewEchoHandler(p)
-		if err := s.Handle(http.MethodGet, "/key", c.Load()); err != nil {
-			log.Fatal(err)
-		}
-		if err := s.Handle(http.MethodPut, "/key", c.Create()); err != nil {
-			log.Fatal(err)
-		}
-		s.Start()
+		api.Run(conf)
 	},
 }

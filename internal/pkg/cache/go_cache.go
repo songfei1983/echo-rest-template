@@ -1,11 +1,11 @@
-package persistent
+package cache
 
 import (
 	"errors"
 
 	"github.com/patrickmn/go-cache"
 
-	"github.com/songfei1983/go-api-server/internal/config"
+	"github.com/songfei1983/go-api-server/internal/pkg/config"
 )
 
 type GoCache struct {

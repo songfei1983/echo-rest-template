@@ -1,4 +1,4 @@
-package persistent
+package cache
 
 type Cache interface {
 	GET(k string) (v interface{}, err error)

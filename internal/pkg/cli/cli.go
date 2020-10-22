@@ -1,4 +1,4 @@
-package cmd
+package cli
 
 import (
 	"github.com/spf13/cobra"
@@ -12,7 +12,7 @@ var (
 	}
 )
 
-// Execute executes the root command.
+// execute executes the root command.
 func Execute() error {
 	return rootCmd.Execute()
 }
