@@ -1,8 +1,12 @@
 package cli
 
 import (
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
+	"github.com/labstack/gommon/log"
 	"github.com/spf13/cobra"
 
 	"github.com/songfei1983/go-api-server/internal/api"
@@ -42,6 +46,14 @@ var serverCmd = &cobra.Command{
 			DefaultExpiredTime: DefaultExpiredTime,
 			CleanupInterval:    CleanupInterval,
 		}}}
-		api.Run(conf)
+		go func() {
+			api.Run(conf)
+		}()
+		quit := make(chan os.Signal, 1)
+		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+		<-quit
+		if err := api.Shutdown(); err != nil {
+			log.Fatal(err)
+		}
 	},
 }

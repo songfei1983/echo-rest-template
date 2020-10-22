@@ -1,6 +1,6 @@
 module github.com/songfei1983/go-api-server
 
-go 1.13
+go 1.15
 
 require (
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
@@ -17,12 +17,13 @@ require (
 	github.com/nxadm/tail v1.4.5 // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/spf13/cobra v1.1.1
+	github.com/swaggo/echo-swagger v1.0.0
 	github.com/swaggo/swag v1.6.9
 	golang.org/x/crypto v0.0.0-20201016220609-9e8e0b390897 // indirect
 	golang.org/x/mod v0.3.1-0.20200828183125-ce943fd02449 // indirect
 	golang.org/x/net v0.0.0-20201021035429-f5854403a974 // indirect
 	golang.org/x/sys v0.0.0-20201020230747-6e5568b54d1a // indirect
-	golang.org/x/tools v0.0.0-20201021214918-23787c007979 // indirect
+	golang.org/x/tools v0.0.0-20201022035929-9cf592e881e9 // indirect
 	google.golang.org/protobuf v1.25.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20200902074654-038fdea0a05b // indirect
 	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776 // indirect
