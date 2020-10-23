@@ -2,8 +2,8 @@ package errors
 
 import "fmt"
 
-func NewHTTPError(status int, err error) HTTPError {
-	return HTTPError{Code: status, Message: err.Error()}
+func NewHTTPError(status int, err error) *HTTPError {
+	return &HTTPError{Code: status, Message: err.Error()}
 }
 
 type HTTPError struct {

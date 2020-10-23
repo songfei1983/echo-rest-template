@@ -7,6 +7,7 @@ require (
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/go-openapi/spec v0.19.10 // indirect
 	github.com/go-openapi/swag v0.19.10 // indirect
+	github.com/go-playground/validator/v10 v10.2.0
 	github.com/go-redis/redis/v8 v8.3.2
 	github.com/golang/protobuf v1.4.3 // indirect
 	github.com/kr/text v0.2.0 // indirect

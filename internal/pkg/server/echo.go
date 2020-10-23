@@ -6,6 +6,7 @@ import (
 	"github.com/labstack/echo/v4"
 
 	"github.com/songfei1983/go-api-server/internal/pkg/config"
+	"github.com/songfei1983/go-api-server/internal/pkg/validator"
 )
 
 type EchoServer struct {
@@ -17,6 +18,7 @@ func NewEcho(conf config.Config) *EchoServer {
 	e := echo.New()
 	e.Debug = conf.Server.Debug
 	e.Logger.SetHeader(`{"time":"${time_rfc3339}","level":"${level}","prefix":"${prefix}","file":"${long_file}","line":"${line}"}`)
+	e.Validator = validator.New()
 	return &EchoServer{
 		server: e,
 		conf:   conf,
