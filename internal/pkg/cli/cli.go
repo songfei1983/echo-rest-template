@@ -6,8 +6,8 @@ import (
 
 var (
 	rootCmd = &cobra.Command{
-		Use:   "api",
-		Short: "Simple Go API server",
+		Use:   "restapi",
+		Short: "Go REST API template",
 		Long:  `High performance, extensible, minimalist REST API`,
 	}
 )

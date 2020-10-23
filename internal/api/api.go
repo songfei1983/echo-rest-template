@@ -2,9 +2,8 @@ package api
 
 import (
 	"context"
+	"sync"
 	"time"
-
-	"github.com/swaggo/echo-swagger"
 
 	_ "github.com/songfei1983/go-api-server/docs"
 	"github.com/songfei1983/go-api-server/internal/api/controllers"
@@ -13,30 +12,23 @@ import (
 	"github.com/songfei1983/go-api-server/internal/pkg/server"
 )
 
-// @contact.name API Support
-// @contact.url http://www.swagger.io/support
-// @contact.email support@swagger.io
+var globalServer server.Server
+var once sync.Once
 
-// @license.name Apache 2.0
-// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
-
-// @termsOfService http://swagger.io/terms/
-var globalServer *server.EchoServer
+const defaultTimeOut = 10 * time.Second
 
 func Run(conf config.Config) {
-	globalServer = server.NewEchoServer(conf)
-	p := cache.NewGoCache(conf)
-	c := controllers.NewEchoHandler(p)
-	globalServer.Server().Debug = true
-	globalServer.Server().Logger.SetHeader(`{"time":"${time_rfc3339}","level":"${level}","prefix":"${prefix}","file":"${long_file}","line":"${line}"}`)
-	globalServer.Server().GET("/swagger/*", echoSwagger.WrapHandler)
-	globalServer.Server().GET("/keys/:key", c.GetKey())
-	globalServer.Server().PUT("/keys", c.AddKeyValue())
+	once.Do(func() {
+		e := server.NewEcho(conf)
+		p := cache.NewGoCache(conf)
+		controllers.NewEchoHandler(e, p)
+		globalServer = e
+	})
 	globalServer.Start()
 }
 
 func Shutdown() error {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeOut)
 	defer cancel()
-	return globalServer.Server().Shutdown(ctx)
+	return globalServer.Shutdown(ctx)
 }
