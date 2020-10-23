@@ -1,4 +1,12 @@
+basePath: /
 definitions:
+  errors.HTTPError:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+    type: object
   model.KeyValue:
     properties:
       key:
@@ -7,9 +15,15 @@ definitions:
         type: object
     type: object
 info:
-  contact: {}
+  contact:
+    name: fei song
+  description: API REST in Golang with Echo Framework
+  license:
+    name: MIT
+    url: https://raw.githubusercontent.com/songfei1983/go-api-server/master/LICENSE
+  version: "1.0"
 paths:
-  /accounts:
+  /keys:
     put:
       consumes:
       - application/json
@@ -18,18 +32,21 @@ paths:
       - application/json
       responses:
         "204": {}
-        "400": {}
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.HTTPError'
       summary: create key value
-  /key/{id}:
+  /keys/{key}:
     get:
       consumes:
       - application/json
-      description: get string by ID
-      operationId: get-string-by-int
+      description: get string by key
+      operationId: get-value-by-key
       parameters:
-      - description: ID
+      - description: key
         in: path
-        name: id
+        name: key
         required: true
         type: integer
       produces:
@@ -39,6 +56,14 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/model.KeyValue'
-        "400": {}
-      summary: Load a key
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.HTTPError'
+      summary: GetKeyValue a key
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

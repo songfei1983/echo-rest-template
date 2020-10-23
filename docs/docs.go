@@ -18,13 +18,19 @@ var doc = `{
     "info": {
         "description": "{{.Description}}",
         "title": "{{.Title}}",
-        "contact": {},
+        "contact": {
+            "name": "fei song"
+        },
+        "license": {
+            "name": "MIT",
+            "url": "https://raw.githubusercontent.com/songfei1983/go-api-server/master/LICENSE"
+        },
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/accounts": {
+        "/keys": {
             "put": {
                 "description": "create an pair of key value",
                 "consumes": [
@@ -36,26 +42,31 @@ var doc = `{
                 "summary": "create key value",
                 "responses": {
                     "204": {},
-                    "400": {}
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/errors.HTTPError"
+                        }
+                    }
                 }
             }
         },
-        "/key/{id}": {
+        "/keys/{key}": {
             "get": {
-                "description": "get string by ID",
+                "description": "get string by key",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
                 ],
-                "summary": "GetKey a key",
-                "operationId": "get-string-by-int",
+                "summary": "GetKeyValue a key",
+                "operationId": "get-value-by-key",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "ID",
-                        "name": "id",
+                        "description": "key",
+                        "name": "key",
                         "in": "path",
                         "required": true
                     }
@@ -67,12 +78,28 @@ var doc = `{
                             "$ref": "#/definitions/model.KeyValue"
                         }
                     },
-                    "400": {}
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/errors.HTTPError"
+                        }
+                    }
                 }
             }
         }
     },
     "definitions": {
+        "errors.HTTPError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "model.KeyValue": {
             "type": "object",
             "properties": {
@@ -83,6 +110,13 @@ var doc = `{
                     "type": "object"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "ApiKeyAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`
@@ -98,12 +132,12 @@ type swaggerInfo struct {
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = swaggerInfo{
-	Version:     "",
+	Version:     "1.0",
 	Host:        "",
-	BasePath:    "",
+	BasePath:    "/",
 	Schemes:     []string{},
 	Title:       "",
-	Description: "",
+	Description: "API REST in Golang with Echo Framework",
 }
 
 type s struct{}
