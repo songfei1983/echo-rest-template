@@ -7,3 +7,9 @@
 
 #EXEC
 bin/
+
+#MacOS
+.DS_STORE
+
+#VSCode
+.vscode/
