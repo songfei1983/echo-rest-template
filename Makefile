@@ -5,7 +5,7 @@ docs: get-docs
 	swag init --dir cmd --parseDependency --output docs
 
 build:
-	go build -o bin/restapi cmd/main.go
+	go build -o bin/api cmd/main.go
 
 run:
 	go run cmd/main.go
