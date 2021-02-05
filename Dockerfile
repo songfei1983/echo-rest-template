@@ -24,7 +24,7 @@ RUN go build -o ./out/app ./cmd/main.go
 FROM alpine:3.12
 RUN apk add ca-certificates
 
-COPY --from=build_base /src/out/app /app/restapi
+COPY --from=build_base /src/out/app /app/api
 
 # Run the binary program produced by `go install`
-CMD /app/restapi server --host 0.0.0.0 --port $PORT
+CMD /app/api server --host 0.0.0.0 --port $PORT

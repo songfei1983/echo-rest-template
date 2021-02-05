@@ -10,6 +10,9 @@ build:
 run:
 	go run cmd/main.go
 
+clean:
+	rm bin/*
+
 test:
 	go test -v ./...
 
