@@ -1,6 +1,10 @@
 package main
 
-import "github.com/songfei1983/go-api-server/internal/pkg/cli"
+import (
+	"fmt"
+	"github.com/songfei1983/go-api-server/internal/cli"
+	"sync"
+)
 
 // @Golang API REST
 // @version 1.0
@@ -20,4 +24,11 @@ func main() {
 	if err := cli.Execute(); err != nil {
 		panic(err)
 	}
+
+	var wg sync.WaitGroup
+	go func() {
+		wg.Add(1)
+		fmt.Println("I don't want to coding anything")
+	}()
+	wg.Wait()
 }

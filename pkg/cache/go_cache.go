@@ -5,7 +5,7 @@ import (
 
 	"github.com/patrickmn/go-cache"
 
-	"github.com/songfei1983/go-api-server/internal/pkg/config"
+	"github.com/songfei1983/go-api-server/pkg/config"
 )
 
 type GoCache struct {

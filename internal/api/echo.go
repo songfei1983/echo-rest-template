@@ -1,14 +1,14 @@
-package controllers
+package api
 
 import (
+	"github.com/songfei1983/go-api-server/internal/domain"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
 	echoSwagger "github.com/swaggo/echo-swagger"
 
-	"github.com/songfei1983/go-api-server/internal/pkg/cache"
-	"github.com/songfei1983/go-api-server/internal/pkg/model"
-	"github.com/songfei1983/go-api-server/internal/pkg/server"
+	"github.com/songfei1983/go-api-server/internal/server"
+	"github.com/songfei1983/go-api-server/pkg/cache"
 	"github.com/songfei1983/go-api-server/pkg/errors"
 	_ "github.com/songfei1983/go-api-server/pkg/errors"
 )
@@ -41,17 +41,12 @@ func (h *EchoHandler) Top(c echo.Context) error {
 // @Failure 400 {object} errors.HTTPError
 // @Router /keys/{key} [get]
 func (h *EchoHandler) GetKeyValue(c echo.Context) error {
-	var in model.KeyValue
-	if err := h.bindValidate(c, &in); err != nil {
-		return c.JSON(err.Code, err)
-	}
-	c.Logger().Info(in)
-	v, err := h.Cache.GET(in.Key)
+	v, err := h.Cache.GET(c.Param("key"))
 	if err != nil {
 		e := errors.NewHTTPError(http.StatusBadRequest, err)
 		return c.JSON(e.Code, e)
 	}
-	in.Value = v
+	in := domain.KeyValue{Key: c.Param("key"), Value: v}
 	return c.JSON(http.StatusOK, in)
 }
 
@@ -64,10 +59,7 @@ func (h *EchoHandler) GetKeyValue(c echo.Context) error {
 // @Failure 400 {object} errors.HTTPError
 // @Router /keys [put]
 func (h *EchoHandler) AddKeyValue(c echo.Context) error {
-	var in struct {
-		Key   string `json:"key"`
-		Value string `json:"value"`
-	}
+	var in domain.KeyValue
 	if err := h.bindValidate(c, &in); err != nil {
 		return c.JSON(err.Code, err)
 	}
@@ -79,10 +71,10 @@ func (h *EchoHandler) AddKeyValue(c echo.Context) error {
 }
 
 func (h *EchoHandler) bindValidate(c echo.Context, in interface{}) *errors.HTTPError {
-	if err := c.Bind(&in); err != nil {
+	if err := c.Bind(in); err != nil {
 		return errors.NewHTTPError(http.StatusBadRequest, err)
 	}
-	if err := c.Validate(&in); err != nil {
+	if err := c.Validate(in); err != nil {
 		return errors.NewHTTPError(http.StatusBadRequest, err)
 	}
 	return nil

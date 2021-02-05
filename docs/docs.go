@@ -41,7 +41,9 @@ var doc = `{
                 ],
                 "summary": "create key value",
                 "responses": {
-                    "204": {},
+                    "204": {
+                        "description": ""
+                    },
                     "400": {
                         "description": "Bad Request",
                         "schema": {

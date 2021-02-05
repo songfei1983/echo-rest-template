@@ -13,7 +13,6 @@ type Config struct {
 type Server struct {
 	Hostname string
 	Port     int
-	Protocol string
 	Debug    bool
 }
 

@@ -2,11 +2,13 @@ package server
 
 import (
 	"context"
+	"github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/gommon/log"
 
 	"github.com/labstack/echo/v4"
 
-	"github.com/songfei1983/go-api-server/internal/pkg/config"
-	"github.com/songfei1983/go-api-server/internal/pkg/validator"
+	"github.com/songfei1983/go-api-server/pkg/config"
+	"github.com/songfei1983/go-api-server/pkg/validator"
 )
 
 type EchoServer struct {
@@ -19,6 +21,11 @@ func NewEcho(conf config.Config) *EchoServer {
 	e.Debug = conf.Server.Debug
 	e.Logger.SetHeader(`{"time":"${time_rfc3339}","level":"${level}","prefix":"${prefix}","file":"${long_file}","line":"${line}"}`)
 	e.Validator = validator.New()
+	if e.Debug {
+		e.Logger.SetLevel(log.DEBUG)
+		e.Logger.Debug("enable debug")
+	}
+	e.Use(middleware.Logger())
 	return &EchoServer{
 		server: e,
 		conf:   conf,

@@ -36,7 +36,7 @@ _______
 go get -u github.com/swaggo/swag/cmd/swag
 
 # Generate docs
-swag init --dir cmd/api --parseDependency --output docs
+swag init --dir cmd --parseDependency --output docs
 ```
 
 Run and go to **http://localhost:3000/docs/index.html**

@@ -10,12 +10,13 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/songfei1983/go-api-server/internal/api"
-	"github.com/songfei1983/go-api-server/internal/pkg/config"
+	"github.com/songfei1983/go-api-server/pkg/config"
 )
 
 var (
 	hostname string
 	port     int
+	debug    bool
 )
 
 const (
@@ -28,6 +29,7 @@ var _ = initServerCmd()
 func initServerCmd() struct{} {
 	serverCmd.Flags().StringVar(&hostname, "host", "localhost", "host")
 	serverCmd.Flags().IntVar(&port, "port", 8888, "port")
+	serverCmd.Flags().BoolVar(&debug, "debug", false, "port")
 
 	rootCmd.AddCommand(serverCmd)
 	return struct{}{}
@@ -41,7 +43,7 @@ var serverCmd = &cobra.Command{
 		conf := config.Config{Server: config.Server{
 			Hostname: hostname,
 			Port:     port,
-			Protocol: "http",
+			Debug:    debug,
 		}, Persistent: config.Persistent{GoCache: config.GoCache{
 			DefaultExpiredTime: DefaultExpiredTime,
 			CleanupInterval:    CleanupInterval,

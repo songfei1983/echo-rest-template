@@ -2,13 +2,13 @@ get-docs:
 	go get -u github.com/swaggo/swag/cmd/swag
 
 docs: get-docs
-	swag init --dir cmd/api --parseDependency --output docs
+	swag init --dir cmd --parseDependency --output docs
 
 build:
-	go build -o bin/restapi cmd/api/main.go
+	go build -o bin/restapi cmd/main.go
 
 run:
-	go run cmd/api/main.go
+	go run cmd/main.go
 
 test:
 	go test -v ./...

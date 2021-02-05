@@ -6,7 +6,7 @@ import (
 
 	"github.com/go-redis/redis/v8"
 
-	"github.com/songfei1983/go-api-server/internal/pkg/config"
+	"github.com/songfei1983/go-api-server/pkg/config"
 )
 
 type Redis struct {

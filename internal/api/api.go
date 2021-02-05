@@ -6,10 +6,9 @@ import (
 	"time"
 
 	_ "github.com/songfei1983/go-api-server/docs"
-	"github.com/songfei1983/go-api-server/internal/api/controllers"
-	"github.com/songfei1983/go-api-server/internal/pkg/cache"
-	"github.com/songfei1983/go-api-server/internal/pkg/config"
-	"github.com/songfei1983/go-api-server/internal/pkg/server"
+	"github.com/songfei1983/go-api-server/internal/server"
+	"github.com/songfei1983/go-api-server/pkg/cache"
+	"github.com/songfei1983/go-api-server/pkg/config"
 )
 
 var globalServer server.Server
@@ -21,7 +20,7 @@ func Run(conf config.Config) {
 	once.Do(func() {
 		e := server.NewEcho(conf)
 		p := cache.NewGoCache(conf)
-		controllers.NewEchoHandler(e, p)
+		NewEchoHandler(e, p)
 		globalServer = e
 	})
 	globalServer.Start()
